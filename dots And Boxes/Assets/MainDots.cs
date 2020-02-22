@@ -9,11 +9,12 @@ public class MainDots : MonoBehaviour
     public GameObject dotPrefab, dotParent, linePrefab, lineParent, boxPrefab, boxParent;
     SpriteRenderer[,,] gridLines = new SpriteRenderer[2, 11, 9]; //1st for H[0] or V[1], (0,0) startingform leftbottom
     public int[] gridSize = new int[2] { 5, 4 };
-    public boardDots thisBoard = new boardDots(new int[2, 2, 2], 1, 1);
+    public boardDots thisBoard = new boardDots(new int[2, 2, 2], 1, 1), randomBoard = new boardDots(new int[2, 2, 2], 1, 1);
     SpriteRenderer[,] boxes = new SpriteRenderer[1, 1];
     public static int playerNumber =2;
-    public bool move;
+    public bool move, timeToSend;
     public static int moveNumberFromCollider =2 ;
+    public int playerId;
 
     public int[,,] gridLineFoo;
 
@@ -25,13 +26,18 @@ public class MainDots : MonoBehaviour
     {
         gridLines = new SpriteRenderer[2, 2 * gridSize[0] + 1, 2 * gridSize[1] + 1];
         thisBoard = new boardDots(new int[2, 2 * gridSize[0] + 1, 2 * gridSize[1] + 1], 2,1);
+        randomBoard = new boardDots(new int[2, 2 * gridSize[0] + 1, 2 * gridSize[1] + 1], 4,1);
         gridLineFoo = new int[2, 2 * gridSize[0] + 1, 2 * gridSize[1] + 1];
         boxes = new SpriteRenderer[gridSize[0] * 2, gridSize[1] * 2];
         initializeColors();
         makeBoard(gridSize);
-        InvokeRepeating("plotBoardLines", 1, 0.5f);
+       // StartCoroutine(Load());
+        InvokeRepeating("plotBoardLines", 5, 0.3f);
         print(thisBoard.gridLine.Length);
-        
+        playerNumber = PlayerPrefs.GetInt("playerNumber");
+        playerId = PlayerPrefs.GetInt("playerId");
+        RestClient.Put("https://dots-68b2c.firebaseio.com/Playings/" + "Dots And Boxes" + "/" + playerId + ".json", thisBoard);
+
     }
     private void Update()
     {
@@ -94,7 +100,7 @@ public class MainDots : MonoBehaviour
     public void plotBoardLines()
     {
         //thisBoard.randomize();
-       RestClient.Get<boardDots>("https://dots-68b2c.firebaseio.com/Playings/" + "Dots And Boxes" + "/" + 1 + ".json").Then(res =>
+       RestClient.Get<boardDots>("https://dots-68b2c.firebaseio.com/Playings/" + "Dots And Boxes" + "/" + playerId + ".json").Then(res =>
            {
                thisBoard.compactGridLines = res.compactGridLines;
                thisBoard.updategrids();
@@ -126,8 +132,43 @@ public class MainDots : MonoBehaviour
 
         thisBoard.updateCompact();
         thisBoard.moves = moveNumberFromCollider;
-        RestClient.Put("https://dots-68b2c.firebaseio.com/Playings/" + "Dots And Boxes" + "/" + 1 + ".json", thisBoard);
+
+        if (timeToSend)
+        {
+            RestClient.Put("https://dots-68b2c.firebaseio.com/Playings/" + "Dots And Boxes" + "/" + playerId + ".json", thisBoard);
+            timeToSend=false;
+        }
         plotBoxes();
+    }
+    public void plotBoardLinesRand()
+    {
+            print("welp");
+            randomBoard.randomize();
+            for (int j = 0; j + 1 < gridLines.GetLength(1); j++)
+            {
+                for (int k = 0; k < gridLines.GetLength(2); k++)
+                {
+                    gridLines[0, j, k].color = BRVG[randomBoard.gridLine[0, j, k]];
+                }
+            }
+            for (int j = 0; j < gridLines.GetLength(1); j++)
+            {
+                for (int k = 0; k + 1 < gridLines.GetLength(2); k++)
+                {
+                    gridLines[1, j, k].color = BRVG[randomBoard.gridLine[1, j, k]];
+                }
+            }
+            plotBoxes();
+    }
+
+    IEnumerator Load()
+    {
+        for (int i = 0; i < 45; i++)
+        {
+            plotBoardLinesRand();
+            yield return new WaitForSeconds(0.1f);
+        }
+        yield return null;
     }
     void plotBoxes()
      

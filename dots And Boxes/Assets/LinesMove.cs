@@ -20,7 +20,9 @@ public class LinesMove : MonoBehaviour
     {
         changeToValue = MainDots.playerNumber;
         MainDots.moveNumberFromCollider = (MainDots.playerNumber + 1) > mainScript.thisBoard.numberPlayer ? 1 : MainDots.playerNumber+1 ;
+        mainScript.timeToSend = true;
         mainScript.plotBoardLines();
+
 
     }
 

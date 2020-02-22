@@ -52,6 +52,7 @@ public class test : MonoBehaviour
                   RestClient.Put("https://dots-68b2c.firebaseio.com/Playings/" + newMatch.gameType + "/" + res.timeCreated + ".json", thisBoard);
                   OnPlay();
                   playerNumber = 2;
+                  if (gameType.text.ToString() == "Dots And Boxes") { SceneManager.LoadScene("Dots and Boxes"); }
               }).Finally(() => createMatch(newMatch.found, newMatch));
 
     }
@@ -64,6 +65,8 @@ public class test : MonoBehaviour
             RestClient.Put("https://dots-68b2c.firebaseio.com/Pendings/" + thisMatch.gameType + "/" + 1 + ".json", thisMatch);
             youName.text = "X: " + userName.text;
         }
+        PlayerPrefs.SetInt("playerId", userNumber);
+        PlayerPrefs.SetInt("playerNumber", playerNumber);
     }
 
     private void Update()
@@ -76,11 +79,14 @@ public class test : MonoBehaviour
             { lookingForMatch = false;
                 OnPlay();
                 playerNumber = 1;
+                PlayerPrefs.SetInt("playerNumber", playerNumber);
                 RestClient.Get<Matches>("https://dots-68b2c.firebaseio.com/Pendings/" + gameType.text.ToString() + "/1/" + ".json").Then(resu =>
                 {
                     //print(rest.userName)
                     enemyName.text = "O: " + resu.userName;
                     RestClient.Delete("https://dots-68b2c.firebaseio.com/Pendings/" + gameType.text.ToString() + "/1/" + ".json");
+                    if(gameType.text.ToString() == "Dots And Boxes") { SceneManager.LoadScene("Dots and Boxes"); }
+                    
                 });
 
             });
@@ -177,7 +183,8 @@ public class test : MonoBehaviour
 
     public void restart()
     {
-        //for (int i = 0; i < 4; i++) { if (winLose[i].activeSelf) { winLose[i].SetActive(false); print("bl"); } }
+        // for (int i = 0; i < 4; i++) { if (winLose[i].activeSelf) { winLose[i].SetActive(false); print("bl"); } }
+        positions = new int[10];
         SceneManager.LoadScene("StartScreen");
         
     }
