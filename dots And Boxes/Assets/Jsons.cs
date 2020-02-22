@@ -35,12 +35,14 @@ public class board
 public class boardDots
 {
     public int[,,] gridLine; // H/V , X, Y: value = Player
-    public int numberPlayer, move;
-    public boardDots(int[,,] gridLines, int numberPlayers, int moves = 1)
+    public int[] compactGridLines;
+    public int numberPlayer, moves;
+    public boardDots(int[,,] gridLines, int numberPlayers, int movess)
     {
+        this.compactGridLines = new int[gridLines.GetLength(0) * gridLines.GetLength(1) * gridLines.GetLength(2)];
         this.gridLine = gridLines;
         this.numberPlayer = numberPlayers;
-        this.move = moves;
+        this.moves = movess;
         
     }
     public void randomize()
@@ -55,5 +57,34 @@ public class boardDots
                 }
             }
         }
+    }
+
+    public void updateCompact()
+    {
+        for (int i = 0; i < gridLine.GetLength(0); i++)
+        {
+            for (int j = 0; j < gridLine.GetLength(1); j++)
+            {
+                for (int k = 0; k < gridLine.GetLength(2); k++)
+                {
+                    compactGridLines[i * (gridLine.GetLength(1)) * gridLine.GetLength(2) + j * gridLine.GetLength(2) + k] = gridLine[i, j, k];
+                }
+            }
+        }
+    }
+
+    public int[,,] updategrids()
+    {
+        int x,y,z;
+        
+       for(int i = 0; i < compactGridLines.Length; i++)
+        {
+            x = i / (gridLine.GetLength(1) * gridLine.GetLength(2));
+            y = (i % (gridLine.GetLength(1) * gridLine.GetLength(2)))/gridLine.GetLength(2);
+            z = (i % (gridLine.GetLength(1) * gridLine.GetLength(2))) % gridLine.GetLength(2);
+            gridLine[x,y,z] = compactGridLines[i];
+        }
+        
+        return gridLine;
     }
 }
