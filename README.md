@@ -1,2 +1,2 @@
 # Dots and Boxes
- multiplayer dots and boxes ans x and zero
+ multiplayer dots and boxes and x and zero
